@@ -16,8 +16,6 @@ networks:
 volumes:
   mariadb:
     driver: ${VOLUMES_DRIVER}
-  phpmyadmin:
-    driver: ${VOLUMES_DRIVER}
 services:
 
 #================================================================================================
@@ -148,10 +146,6 @@ services:
       - "${WORKSPACE_SSH_PORT}:22"
       - "${WORKSPACE_BROWSERSYNC_HOST_PORT}:3000"
       - "${WORKSPACE_BROWSERSYNC_UI_HOST_PORT}:3001"
-      - "${WORKSPACE_VUE_CLI_SERVE_HOST_PORT}:8080"
-      - "${WORKSPACE_VUE_CLI_UI_HOST_PORT}:8000"
-      - "${WORKSPACE_ANGULAR_CLI_SERVE_HOST_PORT}:4200"
-      - "${WORKSPACE_VITE_PORT}:5173"
     tty: true
     environment:
       - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
@@ -165,41 +159,34 @@ services:
       - backend
 
 #================================================================================================
-# DRUPAL-8
+# APACHE
 #================================================================================================
-# Creates multiple Drupal web apps sharing the same MySQL database
-# Usage: docker-compose up -d
-
-  drupal:
-    build:
-      context: ./config/drupal-apache
-    image: drupal:8.2.3-apache
-    volumes:
-      - /var/www/html
-      - ./scripts/php.ini:/usr/local/etc/php/php.ini
-      #- ./scripts/settings.php:/var/www/html/sites/default/settings.php
-      - ./scripts:/scripts
-      - ./data/drupal/modules/:/var/www/html/modules
-      - ./data/drupal/themes/:/var/www/html/themes
-      - ./data/drupal/libraries/:/var/www/html/libraries
-      - ./data/drupal/profiles/:/var/www/html/profiles
-      #- $(which drush):/usr/local/bin/drush
-      #- $(which drupal):/usr/local/bin/drupal
-    volumes_from:
-      - mariadb
+  apache:
+    image: "tsle/ws-apache-php74-mariadb103-arm64:2.7a"
     ports:
-      - "8082:80"
-    depends_on:
-      - mariadb
+      - "8000:80"
+    volumes:
+      - "./data/www/:/var/www/html/site-php"
+    environment:
+      - CF_PROJ_PRIMARY_FQDN=kuzguni.localhost
+      - CF_TIMEZONE=Europe/Istanbul
+      - CF_SET_OWNER_AND_PERMS_WEBROOT=true
+      - CF_ENABLE_CRON=false
+      - CF_ENABLE_HTTP=true
+      - CF_ENABLE_HTTPS=false
+      - CF_CREATE_DEFAULT_HTTP_SITE=true
+      - CF_APACHE_TIMEOUT=120
+    restart: unless-stopped
+    stdin_open: false
+    tty: false
+    container_name: kuzguni_apache_80
     networks:
       - frontend
-    container_name: kuzguni_drupal_@8082
-
 ### MariaDB ##############################################
   mariadb:
     restart: always
     hostname: localhost
-    container_name: kuzguni_mariadb_@3306
+    container_name: kuzguni_mariadb_3306
     build:
       context: ./config/mariadb
       args:
@@ -220,46 +207,6 @@ services:
       - MYSQL_ROOT_PASSWORD=1234567890
     networks:
       - backend
-### PHPMyAdmin #############################################
-  phpmyadmin:
-    image: phpmyadmin
-    container_name: kuzguni_phpmyadmin_@8090
-    environment:
-      - PMA_ARBITRARY=1
-    ports:
-      - '8090:80'
-    networks:
-      - frontend
-      - backend
-#================================================================================================
-# NGINX Server
-#================================================================================================
-  nginx:
-    restart: always
-    build:
-      context: ./config/nginx
-      args:
-        - CHANGE_SOURCE=${CHANGE_SOURCE}
-        - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
-        - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
-        - http_proxy
-        - https_proxy
-        - no_proxy
-    volumes:
-      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
-      - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
-      - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
-      - ${NGINX_SSL_PATH}:/etc/nginx/ssl
-    ports:
-      - "${NGINX_HOST_HTTP_PORT}:80"
-      - "${NGINX_HOST_HTTPS_PORT}:443"
-    depends_on:
-      - php-fpm
-    networks:
-      - frontend
-      - backend
-    extra_hosts:
-      - "host.docker.internal:host-gateway"  
 ### PHP-FPM ##############################################
   php-fpm:
     restart: always
