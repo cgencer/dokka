@@ -163,7 +163,7 @@ services:
 #================================================================================================
   apache:
     image: "tsle/ws-apache-php74-mariadb103-arm64:2.7a"
-    container_name: kuzguni_apache_80
+    container_name: ${COMPOSE_PROJECT_NAME}_apache_80
     ports:
       - "8000:80"
     volumes:
@@ -187,6 +187,7 @@ services:
 #================================================================================================
   nginx:
     restart: always
+    container_name: ${COMPOSE_PROJECT_NAME}_nginx_8080
     build:
       context: ./config/nginx
       args:
@@ -215,7 +216,7 @@ services:
   mariadb:
     restart: always
     hostname: localhost
-    container_name: kuzguni_mariadb_3306
+    container_name: ${COMPOSE_PROJECT_NAME}_mariadb_3306
     build:
       context: ./config/mariadb
       args:
@@ -224,16 +225,25 @@ services:
         - no_proxy
         - MARIADB_VERSION=${MARIADB_VERSION}
     volumes:
-      - ${DATA_PATH_HOST}/database/mariadb:/var/lib/mysql
       - ${MARIADB_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+      - ${DATA_PATH_HOST}/database/mariadb:/var/lib/mysql
     ports:
       - "${MARIADB_PORT}:3306"
     environment:
       - TZ=${WORKSPACE_TIMEZONE}
-      - MYSQL_DATABASE=${MARIADB_DATABASE}
-      - MYSQL_USER=${MARIADB_USER}
-      - MYSQL_PASSWORD=${MARIADB_PASSWORD}
-      - MYSQL_ROOT_PASSWORD=1234567890
+      - MARIADB_ROOT_USERNAME=root
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_USERNAME=${MARIADB_USERNAME}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - MARIADB_CHARACTER_SET_SERVER=utf8
+      - MARIADB_COLLATION_SERVER=utf8_general_ci
+    healthcheck:
+      test: ["CMD", "mysql", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 2
+      start_period: 0s
     networks:
       - backend
 ### PHP-FPM ##############################################
