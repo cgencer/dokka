@@ -227,6 +227,8 @@ services:
     volumes:
       - ${MARIADB_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
       - ${DATA_PATH_HOST}/database/mariadb:/var/lib/mysql
+      - ${MARIADB_RESTORE_PATH}:/home/restore
+      - ./scripts:/home/scripts
     ports:
       - "${MARIADB_PORT}:3306"
     environment:
@@ -236,14 +238,10 @@ services:
       - MARIADB_USERNAME=${MARIADB_USERNAME}
       - MARIADB_PASSWORD=${MARIADB_PASSWORD}
       - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - MARIADB_BACKUP_PATH=${MARIADB_BACKUP_PATH}
+      - MARIADB_MAX_ALLOWED_PACKET=32M
       - MARIADB_CHARACTER_SET_SERVER=utf8
       - MARIADB_COLLATION_SERVER=utf8_general_ci
-    healthcheck:
-      test: ["CMD", "mysql", "ping", "-h", "127.0.0.1", "--silent"]
-      interval: 5s
-      timeout: 3s
-      retries: 2
-      start_period: 0s
     networks:
       - backend
 ### PHP-FPM ##############################################

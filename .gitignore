@@ -12,7 +12,7 @@
 /logstash/config/pipelines.yml
 
 /config/workspace/insecure_id_rsa
-/config/workspace/*.ppk
+u/config/workspace/*.ppk
 /config/workspace/*.pub
 *.ppk
 *.pub
