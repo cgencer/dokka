@@ -163,6 +163,7 @@ services:
 #================================================================================================
   apache:
     image: "tsle/ws-apache-php74-mariadb103-arm64:2.7a"
+    container_name: kuzguni_apache_80
     ports:
       - "8000:80"
     volumes:
@@ -179,9 +180,37 @@ services:
     restart: unless-stopped
     stdin_open: false
     tty: false
-    container_name: kuzguni_apache_80
     networks:
       - frontend
+#================================================================================================
+# NGINX Server
+#================================================================================================
+  nginx:
+    restart: always
+    build:
+      context: ./config/nginx
+      args:
+        - CHANGE_SOURCE=${CHANGE_SOURCE}
+        - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
+        - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    volumes:
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+      - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
+      - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
+      - ${NGINX_SSL_PATH}:/etc/nginx/ssl
+    ports:
+      - "${NGINX_HOST_HTTP_PORT}:8080"
+      - "${NGINX_HOST_HTTPS_PORT}:443"
+    depends_on:
+      - php-fpm
+    networks:
+      - frontend
+      - backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  
 ### MariaDB ##############################################
   mariadb:
     restart: always
