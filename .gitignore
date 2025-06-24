@@ -1,6 +1,5 @@
 .idea
 /logs
-/data
 /data/database
 /data/database/*
 .env

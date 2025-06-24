@@ -15,3 +15,4 @@ RUN apk update && \
   rm -rf /var/cache/apk/* /etc/mysql/* /etc/my.cnf* /var/lib/mysql/*
 
 COPY ./overlay /
+

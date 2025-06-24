@@ -1,0 +1,31 @@
+server {
+	listen				80;
+	listen				[::]:80;
+	server_name			editor.piyononline.com;
+	root 				/home/editor/;
+
+	access_log 			/var/log/nginx/editor.piyononline.com-access.log;
+	error_log 			/var/log/nginx/editor.piyononline.com-error.log;
+
+	index				index.php;
+	include				/etc/nginx/security;
+
+	error_page 500 502 503 504  	/50x.html;
+
+
+	location ~ \.php {
+               try_files               $uri $uri/ =404;
+               fastcgi_pass    unix:/var/run/php-fpm/php-fpm-70.sock;
+               fastcgi_index   index.php;
+               include                 /etc/nginx/fastcgi_params;
+               fastcgi_read_timeout 300;
+	}
+
+    listen [::]:443 ssl ipv6only=on; 	# managed by Certbot
+    listen 443 ssl; 					# managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/akademi.piyononline.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/akademi.piyononline.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}

@@ -1,0 +1,36 @@
+{
+  "name": "underscore.array",
+  "main": "underscore.array.js",
+  "version": "0.1.1",
+  "homepage": "https://github.com/hanamura/underscore.array",
+  "authors": [
+    "Taro Hanamura <m@hanamurataro.com>"
+  ],
+  "description": "Array-related functions missing from underscore.js",
+  "keywords": [
+    "underscore",
+    "array",
+    "utility",
+    "functions"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "underscore": "~1.5.2"
+  },
+  "_release": "0.1.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.1.1",
+    "commit": "8399eb2079f314da92cfb4ea5effcebdf1bfc966"
+  },
+  "_source": "git://github.com/hanamura/underscore.array.git",
+  "_target": "*",
+  "_originalSource": "underscore.array"
+}

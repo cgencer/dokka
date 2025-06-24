@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cp -Rf /home/conf/mods/ /etc/nginx/
+
 if [ ! -f /etc/nginx/ssl/default.crt ]; then
     openssl genrsa -out "/etc/nginx/ssl/default.key" 2048
     openssl req -new -key "/etc/nginx/ssl/default.key" -out "/etc/nginx/ssl/default.csr" -subj "/CN=default/O=default/C=UK"

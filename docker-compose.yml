@@ -1,13 +1,4 @@
-# Drupal with PostgreSQL
-#
-# Access via "http://localhost:8080"
-#
-# During initial Drupal setup,
-# Database type: PostgreSQL
-# Database name: postgres
-# Database username: postgres
-# Database password: example
-# ADVANCED OPTIONS; Database host: postgres
+
 networks:
   frontend:
     driver: ${NETWORKS_DRIVER}
@@ -139,7 +130,7 @@ services:
     volumes:
       - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
       #- docker-in-docker:/certs/client
-      - ./php-worker/supervisord.d:/etc/supervisord.d
+      - ./config/php-worker/supervisord.d:/etc/supervisord.d
     extra_hosts:
       - "dockerhost:${DOCKER_HOST_IP}"
     ports:
@@ -157,17 +148,75 @@ services:
     networks:
       - frontend
       - backend
-
+### PHP Worker ############################################
+  php-worker:
+    restart: always
+    container_name: ${COMPOSE_PROJECT_NAME}_phpworker
+    build:
+      context: ./config/php-worker
+      args:
+        - CHANGE_SOURCE=${CHANGE_SOURCE}
+        - LARADOCK_PHP_VERSION=${PHP_VERSION}
+        - PHALCON_VERSION=${PHALCON_VERSION}
+        - LARADOCK_PHALCON_VERSION=${PHALCON_VERSION}
+        - INSTALL_BZ2=${PHP_WORKER_INSTALL_BZ2}
+        - INSTALL_GD=${PHP_WORKER_INSTALL_GD}
+        - INSTALL_IMAGEMAGICK=${PHP_WORKER_INSTALL_IMAGEMAGICK}
+        - INSTALL_GMP=${PHP_WORKER_INSTALL_GMP}
+        - INSTALL_GNUPG=${PHP_WORKER_INSTALL_GNUPG}
+        - INSTALL_LDAP=${PHP_WORKER_INSTALL_LDAP}
+        - INSTALL_PGSQL=${PHP_WORKER_INSTALL_PGSQL}
+        - INSTALL_MONGO=${PHP_WORKER_INSTALL_MONGO}
+        - INSTALL_BCMATH=${PHP_WORKER_INSTALL_BCMATH}
+        - INSTALL_MEMCACHED=${PHP_WORKER_INSTALL_MEMCACHED}
+        - INSTALL_OCI8=${PHP_WORKER_INSTALL_OCI8}
+        - INSTALL_MSSQL=${PHP_WORKER_INSTALL_MSSQL}
+        - INSTALL_PHALCON=${PHP_WORKER_INSTALL_PHALCON}
+        - INSTALL_APCU=${PHP_WORKER_INSTALL_APCU}
+        - INSTALL_XLSWRITER=${PHP_WORKER_INSTALL_XLSWRITER}
+        - INSTALL_SOAP=${PHP_WORKER_INSTALL_SOAP}
+        - INSTALL_ZIP_ARCHIVE=${PHP_WORKER_INSTALL_ZIP_ARCHIVE}
+        - INSTALL_MYSQL_CLIENT=${PHP_WORKER_INSTALL_MYSQL_CLIENT}
+        - INSTALL_AMQP=${PHP_WORKER_INSTALL_AMQP}
+        - INSTALL_CASSANDRA=${PHP_WORKER_INSTALL_CASSANDRA}
+        - INSTALL_GEARMAN=${PHP_WORKER_INSTALL_GEARMAN}
+        - INSTALL_GHOSTSCRIPT=${PHP_WORKER_INSTALL_GHOSTSCRIPT}
+        - INSTALL_SWOOLE=${PHP_WORKER_INSTALL_SWOOLE}
+        - INSTALL_TAINT=${PHP_WORKER_INSTALL_TAINT}
+        - INSTALL_FFMPEG=${PHP_WORKER_INSTALL_FFMPEG}
+        - INSTALL_AUDIOWAVEFORM=${PHP_WORKER_INSTALL_AUDIOWAVEFORM}
+        - INSTALL_REDIS=${PHP_WORKER_INSTALL_REDIS}
+        - INSTALL_IMAP=${PHP_WORKER_INSTALL_IMAP}
+        - INSTALL_XMLRPC=${PHP_WORKER_INSTALL_XMLRPC}
+        - INSTALL_SSDB=${PHP_WORKER_INSTALL_SSDB}
+        - INSTALL_EVENT=${PHP_WORKER_INSTALL_EVENT}
+        - INSTALL_INTL=${PHP_WORKER_INSTALL_INTL}
+        - INSTALL_POPPLER_UTILS=${PHP_WORKER_INSTALL_POPPLER_UTILS}
+        - PUID=${PHP_WORKER_PUID}
+        - PGID=${PHP_WORKER_PGID}
+        - IMAGEMAGICK_VERSION=${PHP_WORKER_IMAGEMAGICK_VERSION}
+        - ORACLE_INSTANT_CLIENT_MIRROR=${ORACLE_INSTANT_CLIENT_MIRROR}
+        - ORACLE_INSTANT_CLIENT_ARCH=${ORACLE_INSTANT_CLIENT_ARCH}
+        - ORACLE_INSTANT_CLIENT_MAJOR=${ORACLE_INSTANT_CLIENT_MAJOR}
+        - ORACLE_INSTANT_CLIENT_MINOR=${ORACLE_INSTANT_CLIENT_MINOR}
+    volumes:
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+      - ./config/php-worker/supervisord.d:/etc/supervisord.d
+    depends_on:
+      - workspace
+    environment:
+        - TZ=${WORKSPACE_TIMEZONE}
+    extra_hosts:
+      - "dockerhost:${DOCKER_HOST_IP}"
+    networks:
+      - backend
 #================================================================================================
 # APACHE
 #================================================================================================
   apache:
-    image: "tsle/ws-apache-php74-mariadb103-arm64:2.7a"
-    container_name: ${COMPOSE_PROJECT_NAME}_apache_80
-    ports:
-      - "8000:80"
-    volumes:
-      - "./data/www/:/var/www/html/site-php"
+#    image: "tsle/ws-apache-php74-mariadb103-arm64:2.7a"
+    image: "tsle/ws-apache-base-arm64:2.7"
+    container_name: ${COMPOSE_PROJECT_NAME}_apache_8000
     environment:
       - CF_PROJ_PRIMARY_FQDN=kuzguni.localhost
       - CF_TIMEZONE=Europe/Istanbul
@@ -177,6 +226,11 @@ services:
       - CF_ENABLE_HTTPS=false
       - CF_CREATE_DEFAULT_HTTP_SITE=true
       - CF_APACHE_TIMEOUT=120
+    ports:
+      - "8000:80"
+    volumes:
+      - "./data/www/public:/var/www/html/site-php"
+#      - "$PWD/mpcron/wwwphpfpm:/var/spool/cron/crontabs/wwwphpfpm"
     restart: unless-stopped
     stdin_open: false
     tty: false
@@ -187,7 +241,7 @@ services:
 #================================================================================================
   nginx:
     restart: always
-    container_name: ${COMPOSE_PROJECT_NAME}_nginx_8080
+    container_name: ${COMPOSE_PROJECT_NAME}_nginx_${NGINX_HOST_HTTP_PORT}
     build:
       context: ./config/nginx
       args:
@@ -198,20 +252,45 @@ services:
         - https_proxy
         - no_proxy
     volumes:
-      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+      - ./scripts:/home/scripts
+      - ./data/nginx/config:/config
+      - ./data/nginx/config:/home/conf
+      - ./data/nginx/config/modules:/home/conf/mods
+      - ${DATA_PATH_HOST}/www:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
       - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
       - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
       - ${NGINX_SSL_PATH}:/etc/nginx/ssl
     ports:
-      - "${NGINX_HOST_HTTP_PORT}:8080"
+      - "${NGINX_HOST_HTTP_PORT}:80"
       - "${NGINX_HOST_HTTPS_PORT}:443"
     depends_on:
+      - mariadb
       - php-fpm
     networks:
       - frontend
       - backend
     extra_hosts:
-      - "host.docker.internal:host-gateway"  
+      - "host.docker.internal:host-gateway"
+### phpMyAdmin ###########################################
+  phpmyadmin:
+    restart: always
+    build: ./config/phpmyadmin
+    container_name: ${COMPOSE_PROJECT_NAME}_phpmyadmin_${PMA_PORT}
+    environment:
+      - PMA_ARBITRARY=1
+      - MYSQL_USER=${MARIADB_USERNAME}
+      - MYSQL_PASSWORD=${MARIADB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MAX_EXECUTION_TIME=${PMA_MAX_EXECUTION_TIME}
+      - MEMORY_LIMIT=${PMA_MEMORY_LIMIT}
+      - UPLOAD_LIMIT=${PMA_UPLOAD_LIMIT}
+    ports:
+      - "${PMA_PORT}:80"
+    depends_on:
+      - "${PMA_DB_ENGINE}"
+    networks:
+      - frontend
+      - backend
 ### MariaDB ##############################################
   mariadb:
     restart: always
@@ -247,6 +326,7 @@ services:
 ### PHP-FPM ##############################################
   php-fpm:
     restart: always
+    container_name: ${COMPOSE_PROJECT_NAME}_phpfpm_9000
     build:
       context: ./config/php-fpm
       args:

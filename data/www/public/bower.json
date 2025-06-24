@@ -1,0 +1,31 @@
+{
+  "name": "brainDamage",
+  "version": "0.0.5",
+  "authors": [
+    "Cem Gencer <cem.gencer@me.com>"
+  ],
+  "dependencies": {
+    "jquery": "latest",
+    "phaser-official": "latest",
+    "jquery-requestAnimationFrame": "latest",
+    "lodash": "latest",
+    "underscore.array": "latest",
+    "underscore.number": "latest",
+    "jquery-hammerjs": "latest",
+    "fastclick": "latest",
+    "parallax": "latest",
+    "requirejs": "latest",
+    "requirejs-facebook": "latest"
+  },
+  "description": "phaser based hide and seek game",
+  "main": "index.html",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "js/components",
+    "test",
+    "tests"
+  ]
+}
