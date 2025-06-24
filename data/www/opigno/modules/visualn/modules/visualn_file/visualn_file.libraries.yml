@@ -1,7 +1,0 @@
-visualn-image-formatter-handler:
-  js:
-    js/visualn-image-formatter-handler.js: {}
-  dependencies:
-    - core/jquery
-    - core/jquery.once
-    - core/drupal

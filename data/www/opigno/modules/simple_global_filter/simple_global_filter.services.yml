@@ -1,3 +1,0 @@
-services:
-  simple_global_filter.global_filter:
-    class: \Drupal\simple_global_filter\GlobalFilter

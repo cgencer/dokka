@@ -1,6 +1,0 @@
-tckn_webform_element:
-  version: 1.x
-  js:
-    js/restricttonumber.js: {}
-  dependencies:
-    - core/jquery

@@ -1,6 +1,0 @@
-select_form:
-  version: 1.x
-  css:
-    theme:
-      css/select-form.css: {}
-
