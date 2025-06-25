@@ -253,9 +253,8 @@ services:
         - no_proxy
     volumes:
       - ./scripts:/home/scripts
-      - ./data/nginx/config:/config
-      - ./data/nginx/config:/home/conf
-      - ./data/nginx/config/modules:/home/conf/mods
+      - ./data/nginx:/home/config
+      - ./data/nginx/modules:/home/modules
       - ${DATA_PATH_HOST}/www:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
       - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
       - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
