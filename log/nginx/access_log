@@ -310,3 +310,4 @@
 192.168.107.1 - - [27/Jun/2025:10:38:14 +0000] "GET /info.php HTTP/1.1" 502 552 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
 192.168.107.1 - - [27/Jun/2025:11:07:52 +0000] "GET /info.php HTTP/1.1" 502 552 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
 192.168.107.1 - - [27/Jun/2025:11:07:53 +0000] "GET /info.php HTTP/1.1" 502 552 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+192.168.107.1 - - [28/Jun/2025:08:04:45 +0000] "GET /info.php HTTP/1.1" 200 26644 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"

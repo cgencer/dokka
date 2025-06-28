@@ -217,3 +217,7 @@
 192.168.107.1 - - [27/Jun/2025:18:10:46 +0000] "POST /ingest HTTP/1.1" 502 497 "-" "Creative Cloud"
 192.168.107.1 - - [27/Jun/2025:18:14:28 +0000] "POST /ingest HTTP/1.1" 502 497 "-" "Creative Cloud"
 192.168.107.1 - - [27/Jun/2025:18:15:27 +0000] "POST /ingest HTTP/1.1" 502 497 "-" "Creative Cloud"
+192.168.107.1 - - [28/Jun/2025:08:04:56 +0000] "GET / HTTP/1.1" 502 497 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+192.168.107.1 - - [28/Jun/2025:08:04:56 +0000] "POST /ingest HTTP/1.1" 502 497 "-" "Creative Cloud"
+192.168.107.1 - - [28/Jun/2025:08:04:56 +0000] "POST /ingest HTTP/1.1" 502 497 "-" "Creative Cloud"
+192.168.107.1 - - [28/Jun/2025:08:04:56 +0000] "GET /favicon.ico HTTP/1.1" 500 497 "https://akademi.localhost/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"

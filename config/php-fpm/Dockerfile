@@ -60,7 +60,6 @@ RUN set -xe; \
       fi && \
       # Install the zip extension
       docker-php-ext-install zip && \
-      docker-php-ext-install sockets && \
       php -m | grep -q 'zip'
 
 #
@@ -103,7 +102,7 @@ ARG INSTALL_GMP=false
 
 RUN if [ ${INSTALL_GMP} = true ]; then \
     # Install the GMP extension
-	  apt-get install -yqq libgmp-dev && \
+    apt-get install -yqq libgmp-dev && \
     if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
       ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
     ;fi && \
@@ -1405,13 +1404,8 @@ ENV PUID ${PUID}
 ARG PGID=1000
 ENV PGID ${PGID}
 
-RUN addgroup nobody
-RUN groupmod -o -g ${PGID} nobody && \
-    usermod -o -u ${PUID} -g nobody nobody
-
-RUN mkdir /home/socks && chown nobody:nobody /home/socks
-VOLUME /home/socks
-USER nobody
+RUN groupmod -o -g ${PGID} www-data && \
+    usermod -o -u ${PUID} -g www-data www-data
 
 # Adding the faketime library to the preload file needs to be done last
 # otherwise it will preload it for all commands that follow in this file
@@ -1420,7 +1414,7 @@ RUN if [ ${INSTALL_FAKETIME} = true ]; then \
 ;fi
 
 # Configure locale.
-ARG LOCALE=en_US.UTF-8
+ARG LOCALE=POSIX
 ENV LC_ALL ${LOCALE}
 
 WORKDIR /var/www
