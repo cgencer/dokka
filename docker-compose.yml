@@ -210,6 +210,18 @@ services:
       - "dockerhost:${DOCKER_HOST_IP}"
     networks:
       - backend
+### Certbot #########################################
+#  certbot:
+#    build:
+#      context: ./config/certbot
+#    volumes:
+#      - ./data/certbot/certs/:/var/certs
+#      - ./certbot/letsencrypt/:/var/www/letsencrypt
+#    environment:
+#      - CN=akademi.piyononline.com
+#      - EMAIL=o.cem.gencer@gmail.com
+#    networks:
+#      - frontend
 #================================================================================================
 # APACHE
 #================================================================================================
@@ -252,9 +264,11 @@ services:
         - https_proxy
         - no_proxy
     volumes:
+      - ./data/sock:/var/run/sock
       - ./scripts:/home/scripts
       - ./data/nginx:/home/config
       - ./data/nginx/modules:/home/modules
+      - ./data/certbot/certs:/home/certs
       - ${DATA_PATH_HOST}/www:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
       - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
       - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
@@ -266,7 +280,6 @@ services:
       - mariadb
       - php-fpm
     networks:
-      - frontend
       - backend
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -322,6 +335,27 @@ services:
       - MARIADB_COLLATION_SERVER=utf8_general_ci
     networks:
       - backend
+### PHP-FPM ##############################################
+# https://github.com/markhilton/docker-php-fpm
+#  node:
+#      build:
+#          context: ./config/node
+#          args:
+#              - NODE_VERSION=latest
+#              - PROJECT_PATH=/opt/app/
+#              - NODE_ENV=production
+#              - YARN=false
+#      volumes:
+#          - ../:/opt/app
+#      entrypoint: run-nodock "node index.js"
+#      tty: true
+### PHP-FPM EXT ##########################################
+#  php-fpm:
+#    container_name: php-fpm
+#    image: crunchgeek/php-fpm:7.3
+#    entrypoint: php index.php
+#    volumes:
+#      - /path/to/your/app:/app
 ### PHP-FPM ##############################################
   php-fpm:
     restart: always
@@ -405,8 +439,9 @@ services:
         - https_proxy
         - no_proxy
     volumes:
+      - ./socks:/home/socks
       - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
-      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+      - ${DATA_PATH_HOST}/www:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
       #- docker-in-docker:/certs/client
     expose:
       - "9000"
@@ -416,11 +451,10 @@ services:
       - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
       #- DOCKER_HOST=tcp://docker-in-docker:2376
       - DOCKER_TLS_VERIFY=1
-      - DOCKER_TLS_CERTDIR=/certs
-      - DOCKER_CERT_PATH=/certs/client
+      - DOCKER_TLS_CERTDIR=./data/certbot/certs/
+      - DOCKER_CERT_PATH=./data/certbot/certs/
       - FAKETIME=${PHP_FPM_FAKETIME}
       - TZ=${WORKSPACE_TIMEZONE}
     networks:
-      - frontend
       - backend
 

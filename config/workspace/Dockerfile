@@ -95,7 +95,7 @@ RUN set -xe; \
 # Set Timezone
 ###########################################################################
 
-ARG TZ=UTC
+ARG TZ=${WORKSPACE_TIMEZONE}
 ENV TZ ${TZ}
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone

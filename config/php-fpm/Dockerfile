@@ -60,6 +60,7 @@ RUN set -xe; \
       fi && \
       # Install the zip extension
       docker-php-ext-install zip && \
+      docker-php-ext-install sockets && \
       php -m | grep -q 'zip'
 
 #
@@ -1389,7 +1390,7 @@ RUN set -xe; php -v | grep -q "PHP ${LARADOCK_PHP_VERSION}."
 #
 
 COPY ./laravel.ini /usr/local/etc/php/conf.d
-COPY ./xlaravel.pool.conf /usr/local/etc/php-fpm.d/
+COPY ./phpfpm-pool.conf /usr/local/etc/php-fpm.d/
 
 USER root
 
@@ -1404,8 +1405,13 @@ ENV PUID ${PUID}
 ARG PGID=1000
 ENV PGID ${PGID}
 
-RUN groupmod -o -g ${PGID} www-data && \
-    usermod -o -u ${PUID} -g www-data www-data
+RUN addgroup nobody
+RUN groupmod -o -g ${PGID} nobody && \
+    usermod -o -u ${PUID} -g nobody nobody
+
+RUN mkdir /home/socks && chown nobody:nobody /home/socks
+VOLUME /home/socks
+USER nobody
 
 # Adding the faketime library to the preload file needs to be done last
 # otherwise it will preload it for all commands that follow in this file
@@ -1414,7 +1420,7 @@ RUN if [ ${INSTALL_FAKETIME} = true ]; then \
 ;fi
 
 # Configure locale.
-ARG LOCALE=POSIX
+ARG LOCALE=en_US.UTF-8
 ENV LC_ALL ${LOCALE}
 
 WORKDIR /var/www
