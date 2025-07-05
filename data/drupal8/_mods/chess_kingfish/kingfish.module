@@ -1,0 +1,88 @@
+<?php
+
+/**
+ * @file
+ * Module file for block_example.
+ */
+
+use Drupal\Core\Block\BlockPluginInterface;
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Url;
+
+/**
+ * @defgroup kingfish
+ * @ingroup piyonAkademi
+ * @{
+ * Demonstrates code creation of blocks.
+ */
+
+/**
+ * Implements hook_toolbar().
+ */
+function kingfish_toolbar() {
+  $examples = _kingfish_toolbar_routes();
+  $links = [];
+  foreach ($examples as $module => $route) {
+    // Get the module info (title, description) from Drupal.
+    $info = system_get_info('module', $module);
+
+    // If there's no info, the example isn't enabled, so don't display it.
+    if (!empty($info)) {
+      $links[$module] = [
+        'title' => Html::escape($info['name']),
+        'url' => Url::fromRoute($route),
+        'attributes' => [
+          'title' => Html::escape($info['description']),
+        ],
+      ];
+    }
+  }
+
+  // Create the examples toolbar render array.
+  $items['examples'] = [
+    '#type' => 'toolbar_item',
+    'tab' => [
+      '#type' => 'link',
+      '#title' => t('Kingfish'),
+      '#url' => Url::fromRoute('<front>'),
+      '#attributes' => [
+        'title' => t('piyonAkademi Chess Tools'),
+        'class' => ['toolbar-icon', 'toolbar-icon-kingfish'],
+      ],
+    ],
+    'tray' => [
+      '#heading' => t('Developer Examples'),
+      'shortcuts' => [
+        '#theme' => 'links__toolbar_example',
+        '#links' => $links,
+        '#attributes' => [
+          'class' => ['toolbar-menu'],
+        ],
+      ],
+    ],
+    '#weight' => 99,
+    '#attached' => [
+      'library' => [
+        'chess_kingfish/kingfish.icons',
+      ],
+    ],
+  ];
+
+  return $items;
+}
+
+
+/**
+ * Get a list of toolbar links to provide.
+ *
+ * @return string[]
+ *   Keyed array of toolbar routes. Keys are the module name which supplies the
+ *   route.
+ */
+function _kingfish_toolbar_routes() {
+  return [
+    'ajax_example' => 'ajax_example.description',
+    'batch_example' => 'batch_example.form',
+    'block_example' => 'block_example.description',
+  ];
+}

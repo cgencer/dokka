@@ -1,0 +1,27 @@
+.chesstools-board-wrapper {
+  width: 400px;
+}
+.chesstools-board-wrapper ul.moves {
+  list-style: none;
+  border: solid 1px;
+  padding: 10px 30px 10px 10px;
+}
+.chesstools-board-wrapper ul.moves li {
+  display: inline;
+}
+.chesstools-board-wrapper ul.moves li .move-number {
+}
+.chesstools-board-wrapper ul.moves li .algebraic {
+  margin-right: 5px;
+  white-space: nowrap;
+}
+
+.chesstools-board-wrapper ul.pager {
+  padding-left: 0;
+  /*Prevent highlight when double clicking*/
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}

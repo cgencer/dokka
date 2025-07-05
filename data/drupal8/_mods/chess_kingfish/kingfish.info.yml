@@ -1,0 +1,8 @@
+name: KingFish
+description: KingFish Chess AI
+type: module
+core: 8.x
+package: Custom
+dependencies:
+  - drupal:block
+  - drupal:node

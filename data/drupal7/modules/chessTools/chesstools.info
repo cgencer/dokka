@@ -1,0 +1,25 @@
+name        = Chess tools Core
+description = "[chesstools] provides tools related with chess games."
+core        = 7.x
+package     = Chess Tools
+
+dependencies[] = libraries
+dependencies[] = file_entity
+dependencies[] = media
+dependencies[] = date
+;ChessBoard.js requires jQuery version 1.7.0 or higher.
+dependencies[] = jquery_update
+
+
+
+; Add files for chessParser
+files[] = src/DHTMLGoodies/chessParser/CHESS_JSON.php
+files[] = src/DHTMLGoodies/chessParser/Board0x88Config.php
+files[] = src/DHTMLGoodies/chessParser/DGTGameParser.php
+files[] = src/DHTMLGoodies/chessParser/FenParser0x88.php
+files[] = src/DHTMLGoodies/chessParser/GameParser.php
+files[] = src/DHTMLGoodies/chessParser/MoveBuilder.php
+files[] = src/DHTMLGoodies/chessParser/MoveParser.php
+files[] = src/DHTMLGoodies/chessParser/test/ParserTest.php
+files[] = src/DHTMLGoodies/chessParser/PgnGameParser.php
+files[] = src/DHTMLGoodies/chessParser/PgnParser.php

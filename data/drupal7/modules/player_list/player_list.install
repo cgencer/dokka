@@ -1,0 +1,234 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the league_player module.
+ *
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function player_list_install() {
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function player_list_uninstall() {
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function player_list_schema() {
+
+  $schema['player_list_player'] = array(
+    'description' => 'Player in a sports league',
+    'fields' => array(
+      'pid' => array(
+        'description' => 'Player ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'org' => array(
+        'description' => 'Organisation',
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+      ),
+      'dob' => array(
+        'description' => 'Date of birth as unix timestamp',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'sex' => array(
+        'description' => 'Sex M or F',
+        'type' => 'char',
+        'length' => '1',
+        'not null' => TRUE,
+      ),
+      'lastname' => array(
+        'description' => 'Players last name',
+        'type' => 'varchar',
+        'length' => '40',
+        'not null' => TRUE,
+      ),
+      'firstname' => array(
+        'description' => 'Players first name',
+        'type' => 'varchar',
+        'length' => '40',
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'User ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'club' => array(
+        'description' => 'Primary club',
+        'type' => 'char',
+        'length' => 4,
+        'not null' => FALSE,
+      ),
+      'status' => array(
+        'description' => 'Player status',
+        'type' => 'char',
+        'length' => '1',
+        'not null' => FALSE,
+        'default'  => 'A',
+      ),
+      'mid' => array(
+        'description' => 'Member ID',
+        'type' => 'varchar',
+        'length' => '8',
+        'not null' => TRUE,
+      ),
+      'mdate' => array(
+        'description' => 'Expiry date',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+    ),
+    'indexes' => array(
+      'lastname' => array('lastname', 'org'),
+      'pidorg' => array('pid', 'org'),
+    ),
+  );
+
+  $schema['player_list'] = array(
+    'description' => 'List of players in a sports league',
+    'fields' => array(
+      'lid' => array(
+        'description' => 'Player List ID',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'org' => array(
+        'description' => 'Organisation',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'Name',
+        'type' => 'char',
+        'length' => '20',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('lid'),
+  );
+
+  $schema['player_list_pids'] = array(
+    'description' => 'The players in a list',
+    'fields' => array(
+      'lid' => array(
+        'description' => 'Player List ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'pid' => array(
+        'description' => 'Player ID',
+        'type' => 'char',
+        'length' => '10',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('lid','pid'),
+  );
+  return $schema;
+}
+
+/**
+ * Change pid to be a varchar(10)
+ */
+function player_list_update_7001() {
+  $pid = array(
+    'description' => 'Player ID',
+    'type' => 'char',
+    'length' => '10',
+    'not null' => TRUE,
+  );
+  db_change_field( 'player_list_player', 'pid', 'pid', $pid);
+  db_change_field( 'player_list_pids', 'pid', 'pid', $pid);
+}
+
+/**
+ * Replace primary key on player_list_player with index to include org
+ */
+function player_list_update_7002() {
+  db_drop_primary_key('player_list_player');
+  db_add_index('player_list_player', 'pidorg', array('pid','org'));
+}
+
+/**
+ * Add org into lastname index on player_list_player
+ */
+function player_list_update_7003() {
+  db_drop_index('player_list_player', 'lastname');
+  db_add_index('player_list_player', 'lastname', array('lastname','org'));
+}
+/**
+ * Change pid field in player_list_player table to an int.
+ */
+function player_list_update_7004() {
+  $result = db_query("TRUNCATE TABLE {player_list_player}");
+  $pid = array(
+     'description' => 'Player ID',
+     'type' => 'int',
+     'unsigned' => TRUE,
+     'not null' => TRUE,
+  );
+  db_change_field( 'player_list_player', 'pid', 'pid', $pid);
+}
+
+/**
+ * Add club field to player_list_player table.
+ */
+function player_list_update_7005() {
+  $club = array(
+        'description' => 'Primary club',
+        'type' => 'char',
+        'length' => 4,
+        'not null' => FALSE,
+  );
+  db_add_field( 'player_list_player', 'club', $club);
+}
+
+/**
+ * Add status field to player_list_player table.
+ */
+function player_list_update_7006() {
+  $status = array(
+        'description' => 'Player status',
+        'type' => 'char',
+        'length' => '1',
+        'not null' => FALSE,
+        'default'  => 'A',
+  );
+  db_add_field( 'player_list_player', 'status', $status);
+}
+
+/**
+ * Add mid and mdate fields to player_list_player table.
+ */
+function player_list_update_7007() {
+  $mid = array(
+        'description' => 'Member ID',
+        'type' => 'varchar',
+        'length' => '8',
+        'not null' => FALSE,
+  );
+  db_add_field( 'player_list_player', 'mid', $mid);
+  $mdate = array(
+        'description' => 'Expiry date',
+        'type' => 'int',
+        'not null' => FALSE,
+  );
+  db_add_field( 'player_list_player', 'mdate', $mdate);
+}

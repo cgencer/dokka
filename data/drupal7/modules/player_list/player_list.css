@@ -1,0 +1,35 @@
+/*
+ * Styles for League Player edit.
+ *
+ */
+#league-player-update-form .form-item-lastname {
+  width: 18em;
+  float: left;
+}
+#league-player-update-form .form-item-firstname {
+  width: 18em;
+  float: left;
+}
+#league-player-update-form .form-item-club {
+  width: 10em;
+  float: left;
+}
+#league-player-update-form .form-item-dob {
+  width: 18em;
+  float: left;
+  height: 90px;
+}
+#league-player-update-form #sex-select {
+  width: 18em;
+  float: left;
+  height: 90px;
+}
+
+/*
+ * Styles for League Player view.
+ *
+ */
+#player-picture {
+  float: right;
+}
+

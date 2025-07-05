@@ -1,0 +1,19 @@
+kingfish_client:
+  version: 1.x
+  css:
+    theme:
+      css/kingfish.icons.css: {}
+  js:
+    js/socket.io-client/dist/socket.io.slim.js {}
+    js/vendor/base64/base64.min.js {}
+    js/blockSocketClient.js {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/jquery.once
+kingfish_boardBlock:
+  css:
+    theme:
+      css/blabla.css {}
+  js:
+    js/file.js {}

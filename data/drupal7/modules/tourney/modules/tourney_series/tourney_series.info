@@ -1,0 +1,9 @@
+name = Tourney Series Module
+description = Provides entities to create a tournament series
+package = Tourney
+core = 7.x
+
+dependencies[] = tourney
+
+files[] = includes/tourney_series.entity.inc
+

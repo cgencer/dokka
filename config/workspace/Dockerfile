@@ -227,12 +227,9 @@ ARG DRUSH_VERSION
 ENV DRUSH_VERSION ${DRUSH_VERSION}
 
 RUN if [ ${INSTALL_DRUSH} = true ]; then \
-    apt-get -qq -y install mysql-client && \
-    # Install Drush with the phar file.
-    curl -fsSL -o /usr/local/bin/drush https://github.com/drush-ops/drush/releases/download/${DRUSH_VERSION}/drush.phar | bash && \
-    chmod +x /usr/local/bin/drush && \
-    drush core-status \
+    composer global require "drush/drush:${DRUSH_VERSION}" \
 ;fi
+
 
 ###########################################################################
 # WP CLI:

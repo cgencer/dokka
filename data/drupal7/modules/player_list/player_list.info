@@ -1,0 +1,14 @@
+; $Id$
+name = Player List
+description = Manage lists of chess players..
+package = "Other"
+core = 7.x
+
+dependencies[] = views
+dependencies[] = date_popup
+
+files[] = player_list.module
+files[] = player_list_player_controller.inc
+files[] = player_list_controller.inc
+
+stylesheets[screen][] = player_list.css

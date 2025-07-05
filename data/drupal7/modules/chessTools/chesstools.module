@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Module file for chesstools core module.
+ */
+
+module_load_include('inc', 'chesstools', 'chesstools.libraries');
+module_load_include('inc', 'chesstools', 'chesstools.entity');
+module_load_include('inc', 'chesstools', 'chesstools.fields');
+module_load_include('inc', 'chesstools', 'chesstools.themes');
+module_load_include('inc', 'chesstools', 'chesstools.widgets');
+module_load_include('inc', 'chesstools', 'chesstools.formatters');
+
+define('FEN_LENGTH_MAX', 93); // 9999 half-move clock
+
+
+/**
+ * Implements hook_library().
+ */
+function chesstools_library() {
+  $libraries = array();
+
+  $path = drupal_get_path('module', 'chesstools');
+  $libraries['chessjs'] = array(
+    'title' => 'Time Entry',
+    'website' => 'http://plugins.jquery.com/project/timeEntry',
+    'version' => '1.4.7',
+    'js' => array(
+      $path . '/jquery.timeentry.pack.js' => array(),
+    ),
+    'css' => array(
+      $path . '/themes/jquery.timeentry.css' => array(),
+    ),
+  );
+  return $libraries;
+}
+
+/**
+ * Validate that the file is recognized as an PGN file.
+ *
+ * @param $file
+ *   A Drupal file object.
+ *
+ * @return
+ *   An array. If the file is not an PGN, it will contain an error message.
+ *
+ * @see hook_file_validate()
+ */
+function file_validate_is_pgn(stdClass $file) {
+  $errors = array();
+
+  //$info = image_get_info($file->uri);
+  if (TRUE) {
+    $errors[] = t('Invalid or empty PGN file.');
+  }
+
+  return $errors;
+}

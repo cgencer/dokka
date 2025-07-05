@@ -1,0 +1,14 @@
+name = Chess String
+description = Defines simple text field for a chess-string.
+package = Core
+version = VERSION
+core = 7.x
+dependencies[] = field
+files[] = text.test
+required = TRUE
+
+; Information added by Drupal.org packaging script on 2017-06-21
+version = "7.56"
+project = "drupal"
+datestamp = "1498069849"
+

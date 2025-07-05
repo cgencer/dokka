@@ -2,12 +2,14 @@
 /logs
 /data/database
 /data/database/*
-/data/www
-/data/www/*
 .env
 /.project
 .docker-sync
 /jenkins/jenkins_home
+/www
+/www/*
+/vendor/drupal-7
+/vendor/drupal-7/*
 
 /logstash/pipeline/*.conf
 /logstash/config/pipelines.yml

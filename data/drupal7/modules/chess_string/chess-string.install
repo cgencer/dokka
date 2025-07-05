@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the chess_string module.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function chess_string_field_schema($field) {
+  switch ($field['type']) {
+    case 'text_long':
+      $columns = array(
+        'value' => array(
+          'type' => 'chess_string',
+          'size' => 'big',
+          'not null' => FALSE,
+        ),
+      );
+      break;
+  }
+  $columns += array(
+    'format' => array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => FALSE,
+    ),
+  );
+  return array(
+    'columns' => $columns,
+    'indexes' => array(
+      'format' => array('format'),
+    ),
+    'foreign keys' => array(
+      'format' => array(
+        'table' => 'filter_format',
+        'columns' => array('format' => 'format'),
+      ),
+    ),
+  );
+}
+
+/**
+ * Change text field 'format' columns into varchar.
+ */
+function chess_string_update_7000() {
+  $spec = array(
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => FALSE,
+  );
+  $fields = _update_7000_field_read_fields(array(
+    'module' => 'chess_string',
+    'storage_type' => 'field_sql_storage',
+  ));
+  foreach ($fields as $field) {
+    if ($field['deleted']) {
+      $table = "field_deleted_data_{$field['id']}";
+      $revision_table = "field_deleted_revision_{$field['id']}";
+    }
+    else {
+      $table = "field_data_{$field['field_name']}";
+      $revision_table = "field_revision_{$field['field_name']}";
+    }
+    $column = $field['field_name'] . '_' . 'format';
+    db_change_field($table, $column, $column, $spec);
+    db_change_field($revision_table, $column, $column, $spec);
+  }
+}

@@ -1,0 +1,108 @@
+<?php
+
+/**
+ * @file
+ * Install file for chesstools core module.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function chesstools_field_schema($field) {
+  switch ($field['type']) {
+    case 'chesstools_move':
+      $columns = array(
+        'algebraic' => array('type' => 'varchar', 'length' => 8, 'not null' => FALSE), // eg, NXe4++, eXd8=Q++
+        'comment' => array('type' => 'text', 'size' => 'big', 'not null' => FALSE),
+        'variations' => array('type' => 'blob', 'size' => 'normal', 'not null' => FALSE), // 16 KB
+        'from' => array('type' => 'char', 'length' => 2, 'not null' => FALSE), //eg, e2
+        'to' => array('type' => 'char', 'length' => 2, 'not null' => FALSE), // eg, e4
+        'fen' => array('type' => 'varchar', 'length' => FEN_LENGTH_MAX, 'not null' => TRUE),
+      );
+      $indexes = array(
+        'fen' => array('fen'),
+      );
+      return array(
+        'columns' => $columns,
+        'indexes' => $indexes,
+      );
+  }
+}
+
+/**
+ * Implements hook_install
+ */
+function chesstools_install() {
+  // Creates a new file type (bundle) of pgn
+  module_load_include('inc', 'file_entity', 'file_entity.file_api');
+  if (!file_type_load('pgn')) {
+    $type = (object) array(
+      'api_version' => 1,
+      'type' => 'pgn',
+      'label' => st('Chess game (pgn format)'),
+      'description' => st('This file type is to record chess games in pgn format.'),
+      'mimetypes' => array('application/x-chess-pgn'),
+      'streams' => array(
+        'public',
+      ),
+    );
+
+    file_type_save($type);
+  }
+
+  // Add .pgn to file_entity_default_allowed_extensions
+  $file_entity_default_allowed_extensions = variable_get('file_entity_default_allowed_extensions', FALSE);
+  if (!in_array('pgn', explode(' ', $file_entity_default_allowed_extensions))) {
+    $file_entity_default_allowed_extensions .= ' pgn';
+    variable_set('file_entity_default_allowed_extensions', $file_entity_default_allowed_extensions);
+  }
+
+  // Creates and instantiates 'Move' field in file type of pgn
+  field_cache_clear();
+  field_associate_fields('chesstools');
+  if (!field_info_field('field_chesstools_move')) {
+    $field = array(
+      'field_name' => 'field_chesstools_move',
+      'type' => 'chesstools_move',
+      'entity_types' => array('file'),
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'locked' => FALSE,
+    );
+    $field = field_create_field($field);
+
+    $instance = array(
+      'field_name' => $field['field_name'],
+      'entity_type' => 'file',
+      'bundle' => 'pgn',
+      'label' => 'Move',
+      'description' => 'Chess move including Algebraic Notation, Comment, Variations, From , To and FEN',
+      'required' => TRUE,
+      'default_value_function' => '',
+      'default_value' => array(array('fen' => 'rnbqkbnr\/pppppppp\/8\/8\/8\/8\/PPPPPPPP\/RNBQKBNR w KQkq - 0 1')),
+      'settings' => array(),
+      'widget' => array(),
+      'display' => array(
+        'default' => array('label' => 'hidden'),
+      )
+    );
+    field_create_instance($instance);
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ * todo
+ */
+function chesstools_uninstall() {
+//  variable_del('devel_execution');
+
+  // Delete the chess-game menu.
+  if (module_exists('menu')) {
+//    if ($devel_menu = menu_load('devel')) {
+//      menu_delete($devel_menu);
+//    }
+  }
+}
+
+
+

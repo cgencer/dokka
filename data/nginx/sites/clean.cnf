@@ -1,0 +1,51 @@
+server {
+	listen				80;
+	listen				[::]:80;
+    listen				443 ssl;
+
+	server_name			academy.piyononline.com www.academy.piyononline.com academy.localhost;
+	root 				/var/www/clean-drupal;
+
+	access_log 			/var/log/nginx/access.log;
+	error_log 			/var/log/nginx/error.log;
+
+	index				index.php;
+
+	include				/home/modules/security.conf;
+    include				/home/modules/basic/static.conf;
+
+	if ($scheme != "https") {	return 301 https://$host$request_uri;}
+
+    ssl_certificate 	/home/certs/academy.piyonakademi.com/cert.pem; 	# managed by minica
+    ssl_certificate_key /home/certs/academy.piyonakademi.com/key.pem; 	# managed by minica
+
+	location / {								try_files $uri /index.php?$query_string; }
+	location @rewrite {							rewrite ^/(.*)$ /index.php?q=$1; }
+	location ~ ^/sites/.*/files/styles/ {		try_files $uri @rewrite; }
+	location ~ ^(/[a-z\-]+)?/system/files/ {	try_files $uri /index.php?$query_string; }
+    location ^~ /sites/default/files/private/ {	internal; }
+    location ~ ^/sites/.*/private/ {			return 403; }
+    location ~ ^/sites/[^/]+/files/.*\.php$ {	deny all; }
+    location ~* ^/.well-known/ {				allow all; }
+
+	location ~ /vendor/.*\.php$ {
+		deny all;
+		return 404;
+	}
+
+	location ~ '\.php$|^/update.php' {
+        try_files $uri /index.php =404;
+        fastcgi_pass php-fpm:9000;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        #fixes timeouts
+        include /home/modules/fastcgi/fastcgi_params.conf;
+        fastcgi_connect_timeout 60s;
+        fastcgi_send_timeout 60s;
+        fastcgi_read_timeout 60s;
+        fastcgi_buffer_size 128k;
+        fastcgi_buffers 4 256k;
+        fastcgi_busy_buffers_size 256k;
+        fastcgi_temp_file_write_size 256k;
+	}
+}

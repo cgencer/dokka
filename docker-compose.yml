@@ -8,7 +8,6 @@ volumes:
   mariadb:
     driver: ${VOLUMES_DRIVER}
 services:
-
 #================================================================================================
 # Workspace
 #================================================================================================
@@ -264,12 +263,11 @@ services:
         - https_proxy
         - no_proxy
     volumes:
-      - ./data/sock:/var/run/sock
       - ./scripts:/home/scripts
       - ./data/nginx:/home/config
       - ./data/nginx/modules:/home/modules
-      - ./data/certbot/certs:/home/certs
-      - ${DATA_PATH_HOST}/www:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
+      - ./certbot/certs:/home/certs
+      - ${DATA_PATH_HOST}/www:${APP_CODE_PATH_CONTAINER}
       - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
       - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
       - ${NGINX_SSL_PATH}:/etc/nginx/ssl
@@ -322,13 +320,18 @@ services:
       - ./scripts:/home/scripts
     ports:
       - "${MARIADB_PORT}:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ptoor"]
     environment:
       - TZ=${WORKSPACE_TIMEZONE}
-      - MARIADB_ROOT_USERNAME=root
-      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
-      - MARIADB_USERNAME=${MARIADB_USERNAME}
-      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
+      - MYSQL_DATABASE=${MARIADB_DATABASE}
+      - MYSQL_USER=${MARIADB_USERNAME}
+      - MYSQL_PASSWORD=${MARIADB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=root
       - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - MARIADB_USER=${MARIADB_USERNAME}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
+      - MARIADB_ROOT_PASSWORD=root
       - MARIADB_BACKUP_PATH=${MARIADB_BACKUP_PATH}
       - MARIADB_MAX_ALLOWED_PACKET=32M
       - MARIADB_CHARACTER_SET_SERVER=utf8
@@ -439,7 +442,6 @@ services:
         - https_proxy
         - no_proxy
     volumes:
-      - ./socks:/home/socks
       - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
       - ${DATA_PATH_HOST}/www:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
       #- docker-in-docker:/certs/client
@@ -457,4 +459,55 @@ services:
       - TZ=${WORKSPACE_TIMEZONE}
     networks:
       - backend
-
+#================================================================================================
+# Drupal-7
+#================================================================================================
+  drupal7:
+    restart: unless-stopped
+    container_name: ${COMPOSE_PROJECT_NAME}_drupal7_8080
+    build:
+      context: ./config/drupal7
+    ports:
+      - "8080:80"
+    volumes:
+      - ./data/vendor/drupal-7:${APP_CODE_PATH_CONTAINER}/html:cached
+      - ./data/drupal7/sites:${APP_CODE_PATH_CONTAINER}/html/sites
+      - ./data/drupal7/modules:${APP_CODE_PATH_CONTAINER}/html/sites/all/modules
+      - ./data/drupal7/libraries:${APP_CODE_PATH_CONTAINER}/html/sites/all/libraries
+    networks:
+      - backend
+    environment:
+      - PHP_FPM_USER=www-data
+      - PHP_FPM_GROUP=www-data
+      - MYSQL_DATABASE=${MARIADB_DATABASE}
+      - MYSQL_USER=${MARIADB_USERNAME}
+      - MYSQL_PASSWORD=${MARIADB_PASSWORD}
+#    depends_on:
+#      mariadb:
+#        condition: service_healthy
+#    env_file:
+#      .env
+#================================================================================================
+# Drupal-8
+#================================================================================================
+  drupal-8:
+    image: arm64v8/drupal:8
+    container_name: ${COMPOSE_PROJECT_NAME}_drupal-8_8880
+    ports:
+      - 8880:80
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - mariadb
+      - php-fpm
+    volumes:
+      - ./data/drupal-8/modules:/var/www/html/modules/custom
+      - ./data/drupal-8/profiles:/var/www/html/profiles/custom
+      - ./data/drupal-8/themes:/var/www/html/themes/custom
+      - ./data/drupal-8/libraries:/var/www/html/libraries/custom
+      - ./data/drupal-8/sites:/var/www/html/sites/
+    restart: always
+#    environment:
+#      DOCUMENT_ROOT: /var/www/html
+#      ENVIRONMENT: dev
