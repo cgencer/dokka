@@ -1,0 +1,26 @@
+##########################################################
+### APACHE ###############################################
+##########################################################
+  apache:
+#    image: "tsle/ws-apache-php74-mariadb103-arm64:2.7a"
+    image: "tsle/ws-apache-base-arm64:2.7"
+    container_name: ${COMPOSE_PROJECT_NAME}_apache_8000
+    environment:
+      - CF_PROJ_PRIMARY_FQDN=kuzguni.localhost
+      - CF_TIMEZONE=Europe/Istanbul
+      - CF_SET_OWNER_AND_PERMS_WEBROOT=true
+      - CF_ENABLE_CRON=false
+      - CF_ENABLE_HTTP=true
+      - CF_ENABLE_HTTPS=false
+      - CF_CREATE_DEFAULT_HTTP_SITE=true
+      - CF_APACHE_TIMEOUT=120
+    ports:
+      - "8000:80"
+    volumes:
+      - "./data/www/public:/var/www/html/site-php"
+#      - "$PWD/mpcron/wwwphpfpm:/var/spool/cron/crontabs/wwwphpfpm"
+    restart: unless-stopped
+    stdin_open: false
+    tty: false
+    networks:
+      - frontend

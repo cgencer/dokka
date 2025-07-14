@@ -1,0 +1,42 @@
+##########################################################
+### Drupal-X #############################################
+##########################################################
+# requires: 
+#           - Image:  arm64v8/drupal:10.4.8-fpm
+#           - Nginx:  data/nginx/drupal-with-fpm9999.conf
+#           - config: data/phpfpm/php/*
+#           - config: data/phpfpm/php-fpm.d/*
+#           - config: data/phpfpm/php-fpm.conf
+##########################################################
+# https://github.com/docker-library/repo-info/blob/master/repos/drupal/local/10.4.8-fpm.md
+  drupalX:
+    image: arm64v8/drupal:10.4.8-fpm
+    container_name: ${COMPOSE_PROJECT_NAME}_drupalX_fpm
+    restart: always
+    tty: true
+    networks:
+      - backend
+    profiles:
+      - mandatory
+    ports:
+      - 9999:9999
+    depends_on:
+      - "${PMA_DB_ENGINE}"
+    volumes:
+      - type: volume
+        source: assets
+        target: /opt/drupal/web
+        volume:
+          nocopy: false
+      # override PHP settings
+      - ./data/phpfpm/php/php.ini-development:/usr/local/etc/php/php.ini-development
+      - ./data/phpfpm/php/php.ini-production:/usr/local/etc/php/php.ini-production
+      # override PHP-FPM settings
+      - ./data/phpfpm/php-fpm.conf:/usr/local/etc/php-fpm.conf
+      - ./data/phpfpm/php-fpm.d:/usr/local/etc/php-fpm.d
+      # override Drupal folders
+      - ./data/drupalX/modules:/var/www/html/modules
+      - ./data/drupalX/sites:/var/www/html/sites
+      - ./data/drupal-10/profiles:/var/www/html/profiles
+      - ./data/drupal-10/themes:/var/www/html/themes
+      - ./data/drupal-10/libraries:/var/www/html/libraries
