@@ -4,6 +4,12 @@
 /data/database/*
 data/www
 data/www/*
+data/www/*.zip
+data/drupalX/sites/default/files/*
+data/drupal-10/sites/default/files/*
+data/drupal-8/sites/default/files/*
+data/drupal8/sites/default/files/*
+data/drupal7/sites/default/files/*
 .env
 /.project
 .docker-sync
